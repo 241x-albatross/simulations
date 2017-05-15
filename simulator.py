@@ -47,6 +47,15 @@ def flight_sim( x, u, w ):
 
     return np.array([dn, de, dh, dchi, dgamma, dVa, dphi])
 
+def wrapAngles(x):
+    angle_is = [3,4,6]
+    for i in angle_is:
+        while x[i] < -np.pi:
+            x[i] += 2*np.pi
+        while x[i] > np.pi:
+            x[i] -= 2*np.pi
+    return x
+
 def rollout(policy, x0, T, dt = 0.1):
     stats = {"t": [], "x": [], "u": []}
     x = x0
@@ -62,31 +71,44 @@ def rollout(policy, x0, T, dt = 0.1):
 
         dx = flight_sim( x, u, w )
         x += dx*dt
+        x = wrapAngles(x)
 
         t += dt
 
     return stats
 
 
+def basic_policy(x):
+    Va_c = 15
+    h_c = 70
+    chi_c = np.pi/4
+    kp_alt = 0.02
+    kp_course = 0.8
+    gamma_c = kp_alt*(h_c - x[2])
+    phi_c = kp_course*(chi_c - x[3])
+
+    return np.array([Va_c, phi_c, gamma_c])
+
+
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-
+    from mpl_toolkits.mplot3d import Axes3D
+    from path_controller import *
     x0 = [0,0,40,0,0,15,0]
+    mission = np.array([[100,15], [200,100], [30,400], [0,0]])
+    controller = PathController(mission)
 
-    def policy(x):
-        Va_c = 15
-        h_c = 70
-        kp_alt = 0.02
-        gamma_c = kp_alt*(h_c - x[2])
-        phi_c = 0
-
-        return np.array([Va_c, phi_c, gamma_c])
-
-    stats = rollout(policy, x0, 30, 0.1)
+    stats = rollout(controller.policy, x0, 120, 0.1)
 
     t = stats["t"]
     x = np.vstack(stats["x"])
     u = np.vstack(stats["u"])
-    import pdb; pdb.set_trace()
-    plt.plot(t, x[:,2])
+    fig = plt.figure()
+    ax = fig.add_subplot(211)
+    ax.plot(t, x[:,3])
+    ax = fig.add_subplot(212)
+    ax.plot(t, u[:,1])
+    fig2 = plt.figure()
+    ax = fig2.add_subplot(111)
+    ax.plot(x[:,1], x[:,0])
     plt.show()

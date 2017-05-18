@@ -29,9 +29,9 @@ class PathController:
             e = np.array(x[0:2]) - path_start
 
             chi_q = np.arctan2(q[1], q[0])
-            chi_inf = 0.3*np.pi
             epy = np.cos(chi_q)*e[1] - np.sin(chi_q)*e[0]
-            kpath = 0.05
+            chi_inf = 0.3*np.pi
+            kpath = 0.01
 
             chi_c = chi_q - chi_inf * 2 / np.pi * np.arctan(kpath*epy)
             while chi_c < -np.pi:
@@ -40,9 +40,9 @@ class PathController:
             h_c = 70.
 
             kp_alt = 0.02
-            kp_course = 0.5
+            kp_course = 3
             gamma_c = kp_alt*(h_c - x[2])
-            phi_c = kp_course*(chi_c - x[3])
+            phi_c = np.clip(kp_course*(chi_c - x[3]), -0.4*np.pi, 0.4*np.pi)
             Va_c = 15.
 
         return np.array([Va_c, phi_c, gamma_c])

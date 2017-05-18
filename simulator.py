@@ -95,20 +95,40 @@ if __name__ == "__main__":
     from mpl_toolkits.mplot3d import Axes3D
     from path_controller import *
     x0 = [0,0,40,0,0,15,0]
-    mission = np.array([[100,15], [200,100], [30,400], [0,0]])
+    mission = np.array([[200,100], [0,200], [100,15], [100,300]])
+    mission2 = np.array([[100,300], [200,100], [100,15], [0,200] ])
     controller = PathController(mission)
 
-    stats = rollout(controller.policy, x0, 120, 0.1)
+    stats = rollout(controller.policy, x0, 100, 0.1)
+
+    controller = PathController(mission2)
+    stats2 = rollout(controller.policy, x0, 100, 0.1)
 
     t = stats["t"]
     x = np.vstack(stats["x"])
+    x2 = np.vstack(stats2["x"])
     u = np.vstack(stats["u"])
     fig = plt.figure()
-    ax = fig.add_subplot(211)
+    ax = fig.add_subplot(311)
     ax.plot(t, x[:,3])
-    ax = fig.add_subplot(212)
-    ax.plot(t, u[:,1])
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Course Angle (s)")
+    ax = fig.add_subplot(312)
+    ax.plot(t, x[:,6])
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Roll Angle (s)")
+    ax = fig.add_subplot(313)
+    ax.plot(t, x[:,2])
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Altitude (s)")
     fig2 = plt.figure()
     ax = fig2.add_subplot(111)
-    ax.plot(x[:,1], x[:,0])
+    ax.plot(x[:,1], x[:,0], color='b')
+    ax.plot(x2[:,1], x2[:,0], color='g')
+    ax.plot(mission[:,1], mission[:,0], '+', color='r')
+    ax.set_xlabel("East Position (m)")
+    ax.set_ylabel("North Position (m)")
+    for wp in mission:
+        circle = plt.Circle([wp[1], wp[0]], 10, color='r', fill=False)
+        ax.add_artist(circle)
     plt.show()

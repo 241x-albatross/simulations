@@ -123,7 +123,7 @@ def hybrid(mission, x):
 		cost.append(w)
 	
 	i=min(cost)
-	path=x[:2]+mission[idx[1]]+mission[[0,i]]+mission[IJK[1,i]]+mission[IJK[2,i]]+mission[-1]
+	path=x[:2]+mission[idx[1]]+mission[IJK[0,i]]+mission[IJK[1,i]]+mission[IJK[2,i]]+mission[-1]
 	
 	return path
 	

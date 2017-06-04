@@ -4,7 +4,7 @@
 
 using namespace std
 
-//based on distance for now:
+//based on distance + penalty for high angles
 double weight(double x1[], double x2[], double v, double x_prev[])
 {
 	//distance eval
@@ -17,9 +17,22 @@ double weight(double x1[], double x2[], double v, double x_prev[])
 	
 	//angle
 	double v2[]={x_prev[0]-x1[0],x_prev[1]-x1[1]};
-	double theta=(180.0/pi)*acos(v1[0]*v2[0]+v1[1]*v2[1]); //returns value between 0 and pi!
-	
+	double theta=(180.0/pi)*acos((v1[0]*v2[0]+v1[1]*v2[1]) /(pow(v1[0],2)+pow(v1[1],2))/ (pow(v2[0],2)+pow(v2[1],2)));
 	double w_angel=0.0;
+	
+	//penalty 
+	const double p=20.0;
+	
+	if (w_angel<120.0){
+		w_angle+=p;
+		};
+	if (w_angel<60.0){
+		w_angle+=p;
+		};
+	if (w_angel<30.0){
+		w_angle+=pow(10,10);
+		};
+	
 	w=w_d+w_angle
 	
 	if (x_prev.size()==1) {

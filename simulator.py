@@ -38,9 +38,9 @@ def flight_sim( x, u, w ):
     dchi = 9.81/Vg*np.tan(phi)*np.cos(chi - psi)
 
     # first order models of controlled systems, parameterized by constants below
-    b_gamma = 1.
-    b_Va = 1.
-    b_phi = 1.
+    b_gamma = 1.6
+    b_Va = 0.5
+    b_phi = 1.6
     dgamma = b_gamma*(gamma_c - gamma)
     dVa = b_Va*(Va_c - Va)
     dphi = b_phi*(phi_c - phi)
@@ -101,26 +101,34 @@ if __name__ == "__main__":
 
     stats = rollout(controller.policy, x0, 100, 0.1)
 
-    controller = PathController(mission2)
-    stats2 = rollout(controller.policy, x0, 100, 0.1)
+    controller2 = PathController(mission2)
+    stats2 = rollout(controller2.policy, x0, 100, 0.1)
 
     t = stats["t"]
     x = np.vstack(stats["x"])
     x2 = np.vstack(stats2["x"])
     u = np.vstack(stats["u"])
     fig = plt.figure()
-    ax = fig.add_subplot(311)
+    ax = fig.add_subplot(511)
     ax.plot(t, x[:,3])
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Course Angle (s)")
-    ax = fig.add_subplot(312)
+    ax = fig.add_subplot(512)
     ax.plot(t, x[:,6])
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Roll Angle (s)")
-    ax = fig.add_subplot(313)
-    ax.plot(t, x[:,2])
+    ax = fig.add_subplot(513)
+    ax.plot(t, controller.stats["epy"])
     ax.set_xlabel("Time (s)")
-    ax.set_ylabel("Altitude (s)")
+    ax.set_ylabel("Path error (s)")
+    ax = fig.add_subplot(514)
+    ax.plot(t, controller.stats["chi_q"])
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Path course (s)")
+    ax = fig.add_subplot(515)
+    ax.plot(t, controller.stats["chi_c"])
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Desired course (s)")
     fig2 = plt.figure()
     ax = fig2.add_subplot(111)
     ax.plot(x[:,1], x[:,0], color='b')
